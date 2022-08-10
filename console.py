@@ -73,7 +73,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] =='{' and pline[-1] =='}'\
+                    if pline[0] == '{' and pline[-1] == '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -139,11 +139,20 @@ class HBNBCommand(cmd.Cmd):
                             print("** value missing **")
 
                         else:
+                            attributes[1] = attributes[1].replace("_", " ")
+                            attributes[1] = attributes[1].replace("\"", "")
+
+                            if "." in attributes[1]:
+                                attributes[1] = float(attributes[1])
+
+                            elif attributes[1].isdigit():
+                                attributes[1] = int(attributes[1])
+
                             if attributes[0] != "id":
                                 for key, value in storage.all().items():
                                     if key == instance:
                                         setattr(value, attributes[0],
-                                                eval(attributes[1]))
+                                                attributes[1])
                                         value.save()
 
     def help_create(self):
