@@ -115,31 +115,48 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        myList = args.split()
+        arguments = args.split(" ")
+
         if not args:
             print("** class name missing **")
             return
-        elif myList[0] not in HBNBCommand.classes:
+
+        elif arguments[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[myList[0]]()
-
-        if len(myList) > 1:
-            for param in myList[1:]:
-                separator = param.split('=')
-                namekey = separator[0]
-                nameValue = separator[1]
-                if nameValue[0] in '"':
-                    nameValue = nameValue.replace("_", " ")
-                    nameValue = nameValue.replace("\"", "")
-                else:
-                    if "." in nameValue:
-                        nameValue = float(nameValue)
-                    else:
-                        nameValue = int(nameValue)
-                setattr(new_instance, namekey, nameValue)
+        new_instance = HBNBCommand.classes[arguments[0]]()
+        storage.save()
         print(new_instance.id)
         storage.save()
+
+        """this is where we make use of the parameters"""
+        if len(arguments) > 1:
+            instance = arguments[0] + "." + new_instance.id
+
+            for i in range(1, len(arguments)):
+                attributes = arguments[i].split("=")
+                if len(attributes) < 2 or attributes[1] == "":
+                    print("** value missing **")
+
+                else:
+                    if '"' in attributes[1]:
+                        attributes[1] = attributes[1].replace("_", " ")
+                        attributes[1] = attributes[1].replace("\"", "")
+
+                    else:
+
+                        if "." in attributes[1]:
+                            attributes[1] = float(attributes[1])
+
+                        elif attributes[1].isdigit():
+                            attributes[1] = int(attributes[1])
+
+                    if attributes[0] != "id":
+                        for key, value in storage.all().items():
+                            if key == instance:
+                                setattr(value, attributes[0],
+                                        attributes[1])
+                                value.save()
 
     def help_create(self):
         """ Help information for the create method """
