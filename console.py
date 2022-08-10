@@ -129,7 +129,7 @@ class HBNBCommand(cmd.Cmd):
         print(new_instance.id)
         storage.save()
 
-        """this is where we make use of the parameters"""
+        """this is where we make use of the parameters."""
         if len(arguments) > 1:
             instance = arguments[0] + "." + new_instance.id
 
