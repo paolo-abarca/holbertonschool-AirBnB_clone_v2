@@ -115,45 +115,31 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        if args == "":
+        myList = args.split()
+        if not args:
             print("** class name missing **")
+            return
+        elif myList[0] not in HBNBCommand.classes:
+            print("** class doesn't exist **")
+            return
+        new_instance = HBNBCommand.classes[myList[0]]()
 
-        else:
-            arguments = args.split(" ")
-
-            if arguments[0] not in HBNBCommand.classes:
-                print("** class doesn't exist **")
-
-            else:
-                id_obj = eval(arguments[0])().id
-                print(id_obj)
-                storage.save()
-
-                """this is where we make use of the parameters"""
-                if len(arguments) > 1:
-                    instance = arguments[0] + "." + id_obj
-
-                    for i in range(1, len(arguments)):
-                        attributes = arguments[i].split("=")
-                        if len(attributes) < 2 or attributes[1] == "":
-                            print("** value missing **")
-
-                        else:
-                            attributes[1] = attributes[1].replace("_", " ")
-                            attributes[1] = attributes[1].replace("\"", "")
-
-                            if "." in attributes[1]:
-                                attributes[1] = float(attributes[1])
-
-                            elif attributes[1].isdigit():
-                                attributes[1] = int(attributes[1])
-
-                            if attributes[0] != "id":
-                                for key, value in storage.all().items():
-                                    if key == instance:
-                                        setattr(value, attributes[0],
-                                                attributes[1])
-                                        value.save()
+        if len(myList) > 1:
+            for param in myList[1:]:
+                separator = param.split('=')
+                namekey = separator[0]
+                nameValue = separator[1]
+                if nameValue[0] in '"':
+                    nameValue = nameValue.replace("_", " ")
+                    nameValue = nameValue.replace("\"", "")
+                else:
+                    if "." in nameValue:
+                        nameValue = float(nameValue)
+                    else:
+                        nameValue = int(nameValue)
+                setattr(new_instance, namekey, nameValue)
+        print(new_instance.id)
+        storage.save()
 
     def help_create(self):
         """ Help information for the create method """
