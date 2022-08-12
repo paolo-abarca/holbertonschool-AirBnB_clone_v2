@@ -10,9 +10,8 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-
-
-classes = [User, Place, State, City, Amenity, Review]
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
 
 
 class DBStorage():
@@ -26,15 +25,16 @@ class DBStorage():
                                       .format(getenv('HBNB_MYSQL_USER'),
                                               getenv('HBNB_MYSQL_PWD'),
                                               getenv('HBNB_MYSQL_HOST'),
-                                              getenv('HBNB_MYSQL_DB'),
-                                              pool_pre_ping=True))
+                                              getenv('HBNB_MYSQL_DB')),
+                                      pool_pre_ping=True)
 
     if getenv('HBNB_ENV') == 'test':
-        Base.metadata.drop_all()
+        Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        """Returns a dictionary of models currently in storage"""
+        """ Methods for list the table"""
         new_dict = {}
+        classes = [State, City]
 
         if cls in classes:
             obj = self.__session.query(cls).all()
@@ -76,3 +76,7 @@ class DBStorage():
         Session = scoped_session(session_factory)
 
         self.__session = Session()
+
+    def close(self):
+        """method close SQLAlchemy"""
+        self.__session.close()
