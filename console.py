@@ -125,9 +125,6 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
         new_instance = HBNBCommand.classes[arguments[0]]()
-        storage.save()
-        print(new_instance.id)
-        storage.save()
 
         """this is where we make use of the parameters."""
         if len(arguments) > 1:
@@ -135,6 +132,7 @@ class HBNBCommand(cmd.Cmd):
 
             for i in range(1, len(arguments)):
                 attributes = arguments[i].split("=")
+
                 if len(attributes) < 2 or attributes[1] == "":
                     print("** value missing **")
 
@@ -144,19 +142,17 @@ class HBNBCommand(cmd.Cmd):
                         attributes[1] = attributes[1].replace("\"", "")
 
                     else:
-
                         if "." in attributes[1]:
                             attributes[1] = float(attributes[1])
 
                         elif attributes[1].isdigit():
                             attributes[1] = int(attributes[1])
 
-                    if attributes[0] != "id":
-                        for key, value in storage.all().items():
-                            if key == instance:
-                                setattr(value, attributes[0],
-                                        attributes[1])
-                                value.save()
+                    setattr(new_instance, attributes[0],attributes[1])
+
+        print(new_instance.id)
+        storage.save()
+        new_instance.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -238,11 +234,11 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all(HBNBCommand.classes[args]).items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all().items():
                 print_list.append(str(v))
 
         print('[%s]' % ', '.join(map(str, print_list)))
