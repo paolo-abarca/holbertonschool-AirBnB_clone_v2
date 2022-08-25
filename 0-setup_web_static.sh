@@ -11,4 +11,4 @@ new_string="server_name _;\n\n\tlocation \/hbnb_static {\n\t\talias \/data\/web_
 
 sudo sed -i "s/server_name _;/$new_string/" /etc/nginx/sites-available/default
 
-sudo service nginx restart
+sudo service nginx start
