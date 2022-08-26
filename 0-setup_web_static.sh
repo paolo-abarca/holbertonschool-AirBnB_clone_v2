@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Adding Bash script that configures web servers for web_static implementation
-sudo apt -y update
-sudo apt -y upgrade
-sudo apt -y install nginx
+sudo apt-get -y update
+sudo apt-get -y upgrade
+sudo apt-get -y install nginx
 sudo mkdir -p /data/web_static/releases/test
 sudo mkdir -p /data/web_static/shared
 echo "Holberton School" | sudo tee /data/web_static/releases/test/index.html
