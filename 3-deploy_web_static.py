@@ -1,46 +1,62 @@
 #!/usr/bin/python3
-"""Adding a Fabric script (based on the 2-do_deploy_web_static.py
-file) that creates and deploys a file to your web servers,
-using the deploy function"""
+""" "Full deployment """
 
-from fabric.api import *
+
+from fabric.operations import local, run, put
 from datetime import datetime
+from os.path import getsize
+from fabric.api import env
 import os
-
-env.hosts = ['54.147.136.182', '54.163.40.93']
+env.hosts = ['34.226.205.91', '54.163.37.58']
 
 
 def do_pack():
-    """generates a .tgz file from the contents
-    of the web_static folder of your AirBnB Clone repository"""
-    file_result = "versions/web_static_{}.tgz web_static".format(
-            datetime.strftime(datetime.now(), "%Y%m%d%H%M%S"))
+    """  script that generates a .tgz archive from the contents of the
+    web_static folder of your AirBnB Clone repo, using the function
+    do_pack"""
+
     local("mkdir -p versions")
-    result = local("tar -cvzf " + file_result + " ./web_static")
-    if result.succeeded:
-        return file_result
-    return None
+    date = datetime.utcnow()
+    format_date = "%Y%m%d%H%M%S"
+    conv = date.strftime(format_date)
+    path = "versions/web_static_{}.tgz".format(conv)
+    localhost = local("tar -cvzf {} web_static".format(path))
+
+    if localhost.succeeded:
+        print("web_static packed: {} -> {}Bytes".format(path, getsize(path)))
+        return path
+    elif localhost.failed:
+        return None
 
 
 def do_deploy(archive_path):
-    """deploys a file to your web servers, using the do_deploy function"""
-    if not os.path.exists(archive_path):
+    """ script (based on the file 1-pack_web_static.py) that distributes
+    an archive to your web servers, using the function do_deploy:"""
+    if os.path.exists(archive_path):
+        archive = archive_path.split('/')[1]
+        # [ versions, web_static_20170315003959.tgz]
+        filename = archive.split('.')[0]
+        # [web_static_20170315003959, tgz]
+        path = '/data/web_static/releases/'
+        # cargue el archivo en el directorio /tmp/
+        put(archive_path, "/tmp/{}".format(archive))
+        # descromprimir el archvio /data/web_static/releases/{filename}
+        run('mkdir -p {}{}/'.format(path, filename))
+        run('tar -xzf /tmp/{} -C {}{}/'.format(archive, path, filename))
+        # Eliminar el archivo del servidor web
+        run('rm /tmp/{}'.format(archive))
+        # mover a la ruta path
+        run('mv {}{}/web_static/* {}{}/'.format(path, filename,
+                                                path, filename))
+        run('rm -rf {}{}/web_static'.format(path, filename))
+        # Elimine el enlace simbólico /data/web_static/current del servidor web
+        run('rm -rf /data/web_static/current')
+        # Crear un nuevo enlace simbólico
+        run('ln -s {}{}/ /data/web_static/current'.format(path, filename))
+        print('New version deployed!')
+        return True
+    else:
         return False
-    put(archive_path, '/tmp/')
-    file_result = archive_path.split("/")
-    file_res = file_result[1].split(".")
-    run('mkdir -p /data/web_static/releases/{}/'.format(file_res[0]))
-    run('tar -xzf /tmp/{}.tgz -C /data/web_static/releases/{}/'
-        .format(file_res[0], file_res[0]))
-    run('rm /tmp/{}.tgz'.format(file_res[0]))
-    run('mv /data/web_static/releases/{}/web_static/* '.format(file_res[0]) +
-        '/data/web_static/releases/{}/'.format(file_res[0]))
-    run('rm -rf /data/web_static/releases/{}/web_static'.format(file_res[0]))
-    run('rm -rf /data/web_static/current')
-    run('ln -s /data/web_static/releases/{}/ /data/web_static/current'
-        .format(file_res[0]))
-    print('New version deployed!')
-    return True
 
 
 def deploy():
