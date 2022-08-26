@@ -44,9 +44,12 @@ def do_deploy(archive_path):
 
 
 def deploy():
-    """creates and deploys a file to your web servers,
-    using the deploy function"""
-    archive_path = do_pack()
-    if archive_path is None:
+    """ script (based on the file 2-do_deploy_web_static.py) that creates
+    and distributes an archive to your web servers, using the
+    function deploy"""
+    callFunction = do_pack()
+
+    if callFunction is None:
         return False
-    return do_deploy(archive_path)
+    new = do_deploy(callFunction)
+    return new
