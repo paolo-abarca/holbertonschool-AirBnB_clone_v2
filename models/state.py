@@ -19,7 +19,7 @@ class State(BaseModel, Base):
     else:
         @property
         def cities(self):
-            """"""
+            """return new_list"""
             new_list = []
 
             value = storage.all(City).values()
