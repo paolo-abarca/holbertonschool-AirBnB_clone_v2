@@ -22,7 +22,7 @@ class State(BaseModel, Base):
             """return new_list"""
             new_list = []
 
-            value = storage.all(City).values()
+            value = models.storage.all(City).values()
             for i in value:
                 if self.id == i.state_id:
                     new_list.append(i)
