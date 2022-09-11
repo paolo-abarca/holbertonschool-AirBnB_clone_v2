@@ -18,7 +18,7 @@ def states_list():
 
 
 @app.teardown_appcontext
-def teardown_appcontext():
+def teardown_appcontext(exc):
     """
     function that returns a states list
     """
